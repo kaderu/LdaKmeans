@@ -323,17 +323,11 @@ public class LdaEstimate {
      */
     public static void main(String[] args) {
 
-        File file = new File("C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.model");
-        // 路径为文件且不为空则进行删除
-        if (file.exists()) {
-            File[] files = file.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                files[i].delete();
-            }
-            file.delete();
+        if (args.length == 0) {
+            args = new String[]{"est", "0.5", "3", "settings.txt",
+                    "C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.dat", "seeded",
+                    "C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.model"};
         }
-
-        args = new String[]{"est", "0.5", "3", "settings.txt", "C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.dat", "seeded", "C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.model"};
 
         int i = 0;
         double y = 0;

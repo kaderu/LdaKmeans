@@ -1,16 +1,8 @@
 package pic.utility;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
-import pic.algorithm.sift.ImageTransform;
 import pic.ui.MainFrame;
+
+import java.io.IOException;
 
 public class Test {
 
