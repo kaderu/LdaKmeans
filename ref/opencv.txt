@@ -1,0 +1,114 @@
+// Interpolates a scale-space extremum's location and scale to subpixel
+// accuracy to form an image feature.  Rejects features with low contrast.
+// Based on Section 4 of Lowe's paper.
+// 特征点精确定位
+static bool adjustLocalExtrema( const vector<Mat>& dog_pyr, KeyPoint& kpt, int octv,
+                                int& layer, int& r, int& c, int nOctaveLayers,
+                                float contrastThreshold, float edgeThreshold, float sigma )
+{
+    const float img_scale = 1.f/(255*SIFT_FIXPT_SCALE);
+    const float deriv_scale = img_scale*0.5f;
+    const float second_deriv_scale = img_scale;
+    const float cross_deriv_scale = img_scale*0.25f;
+
+    float xi=0, xr=0, xc=0, contr;
+    int i = 0;
+
+	//三维子像元插值
+    for( ; i < SIFT_MAX_INTERP_STEPS; i++ )
+    {
+        int idx = octv*(nOctaveLayers+2) + layer;
+        const Mat& img = dog_pyr[idx];
+        const Mat& prev = dog_pyr[idx-1];
+        const Mat& next = dog_pyr[idx+1];
+
+        Vec3f dD((img.at<short>(r, c+1) - img.at<short>(r, c-1))*deriv_scale,
+                 (img.at<short>(r+1, c) - img.at<short>(r-1, c))*deriv_scale,
+                 (next.at<short>(r, c) - prev.at<short>(r, c))*deriv_scale);
+
+        float v2 = (float)img.at<short>(r, c)*2;
+        float dxx = (img.at<short>(r, c+1) + 
+				img.at<short>(r, c-1) - v2)*second_deriv_scale;
+        float dyy = (img.at<short>(r+1, c) + 
+				img.at<short>(r-1, c) - v2)*second_deriv_scale;
+        float dss = (next.at<short>(r, c) + 
+				prev.at<short>(r, c) - v2)*second_deriv_scale;
+        float dxy = (img.at<short>(r+1, c+1) - 
+				img.at<short>(r+1, c-1) - img.at<short>(r-1, c+1) + 
+				img.at<short>(r-1, c-1))*cross_deriv_scale;
+        float dxs = (next.at<short>(r, c+1) - 
+				next.at<short>(r, c-1) - prev.at<short>(r, c+1) + 
+				prev.at<short>(r, c-1))*cross_deriv_scale;
+        float dys = (next.at<short>(r+1, c) - 
+				next.at<short>(r-1, c) - prev.at<short>(r+1, c) + 
+				prev.at<short>(r-1, c))*cross_deriv_scale;
+
+        Matx33f H(dxx, dxy, dxs,
+                  dxy, dyy, dys,
+                  dxs, dys, dss);
+
+        Vec3f X = H.solve(dD, DECOMP_LU);
+
+        xi = -X[2];
+        xr = -X[1];
+        xc = -X[0];
+
+        if( std::abs( xi ) < 0.5f  &&  std::abs( xr ) < 0.5f  &&  std::abs( xc ) < 0.5f )
+            break;
+
+		//将找到的极值点对应成像素（整数）
+        c += cvRound( xc );
+        r += cvRound( xr );
+        layer += cvRound( xi );
+
+        if( layer < 1 || layer > nOctaveLayers ||
+           c < SIFT_IMG_BORDER || c >= img.cols - SIFT_IMG_BORDER  ||
+           r < SIFT_IMG_BORDER || r >= img.rows - SIFT_IMG_BORDER )
+            return false;
+    }
+
+    /* ensure convergence of interpolation */
+	// SIFT_MAX_INTERP_STEPS:插值最大步数，避免插值不收敛，程序中默认为5
+    if( i >= SIFT_MAX_INTERP_STEPS )
+        return false;
+
+    {
+        int idx = octv*(nOctaveLayers+2) + layer;
+        const Mat& img = dog_pyr[idx];
+        const Mat& prev = dog_pyr[idx-1];
+        const Mat& next = dog_pyr[idx+1];
+        Matx31f dD((img.at<short>(r, c+1) - img.at<short>(r, c-1))*deriv_scale,
+                   (img.at<short>(r+1, c) - img.at<short>(r-1, c))*deriv_scale,
+                   (next.at<short>(r, c) - prev.at<short>(r, c))*deriv_scale);
+        float t = dD.dot(Matx31f(xc, xr, xi));
+
+        contr = img.at<short>(r, c)*img_scale + t * 0.5f;
+        if( std::abs( contr ) * nOctaveLayers < contrastThreshold )
+            return false;
+
+        /* principal curvatures are computed using the trace and det of Hessian */
+       //利用Hessian矩阵的迹和行列式计算主曲率的比值
+	   float v2 = img.at<short>(r, c)*2.f;
+        float dxx = (img.at<short>(r, c+1) + 
+				img.at<short>(r, c-1) - v2)*second_deriv_scale;
+        float dyy = (img.at<short>(r+1, c) + 
+				img.at<short>(r-1, c) - v2)*second_deriv_scale;
+        float dxy = (img.at<short>(r+1, c+1) - 
+				img.at<short>(r+1, c-1) - img.at<short>(r-1, c+1) + 
+				img.at<short>(r-1, c-1)) * cross_deriv_scale;
+        float tr = dxx + dyy;
+        float det = dxx * dyy - dxy * dxy;
+
+		//这里edgeThreshold可以在调用SIFT()时输入；
+		//其实代码中定义了 static const float SIFT_CURV_THR = 10.f 可以直接使用
+        if( det <= 0 || tr*tr*edgeThreshold >= (edgeThreshold + 1)*(edgeThreshold + 1)*det )
+            return false;
+    }
+
+    kpt.pt.x = (c + xc) * (1 << octv);
+    kpt.pt.y = (r + xr) * (1 << octv);
+    kpt.octave = octv + (layer << 8) + (cvRound((xi + 0.5)*255) << 16);
+    kpt.size = sigma*powf(2.f, (layer + xi) / nOctaveLayers)*(1 << octv)*2;
+
+    return true;
+}
