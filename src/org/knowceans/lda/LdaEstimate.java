@@ -325,8 +325,8 @@ public class LdaEstimate {
 
         if (args.length == 0) {
             args = new String[]{"est", "0.5", "3", "settings.txt",
-                    "C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.dat", "seeded",
-                    "C:\\Users\\zhangshangzhi\\Desktop\\pic\\lda.model"};
+                    "E:\\WORK\\JD data\\pic\\lda.dat", "seeded",
+                    "E:\\WORK\\JD data\\pic\\lda.model"};
         }
 
         int i = 0;

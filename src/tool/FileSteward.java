@@ -1199,7 +1199,7 @@ public class FileSteward {
         Map<String, String> mapTitle = dictReader("translate.dic");
         Map<String, String> mapKeyword = dictReader("keyword_translate.dic");
         // add for single leaf_cate 2017/8/9, small size of wordnet
-        Map<String, String> mapWordnet = dictReader("C:\\Users\\zhangshangzhi\\Desktop\\pic\\pic_75061333\\private_dict.txt");
+        Map<String, String> mapWordnet = dictReader("E:\\WORK\\JD data\\pic\\pic_75061333\\private_dict.txt");
 
         map.putAll(mapTitle);
         map.putAll(mapKeyword);

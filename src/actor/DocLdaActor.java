@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class DocLdaActor {
 
-    public static final String prefix_path = "C:\\Users\\zhangshangzhi\\Desktop\\pic\\";
+    public static final String prefix_path = "E:\\WORK\\JD data\\pic\\";
     public static final String wkbt_file_name = "wkbt.txt";
     public static final String wkbt_dict_file_name = "word_index.txt";
     public static final String lda_input_file_name = "wkbtLda.dat";
@@ -34,7 +34,7 @@ public class DocLdaActor {
 
     public static void init() {
         // step.1 determine a category_id, let's say, 75061382
-        categoryId = 75061316;
+        categoryId = 75061132;
         initalPath(categoryId);
         System.out.println("**************************");
         System.out.println("step.1 initalPath finish...");
@@ -51,12 +51,14 @@ public class DocLdaActor {
     public static void main(String[] args) {
         init();
         // provide us cellClusterTree.txt
+
         FileSteward.storeCellClusterTree(ori_fix_file);
-
+        // merge dush
         mergeNodeIndx();
+        // get output
         watchRootNodeActor();
-
-//        LateWork.picturePathReset(prefix_path + "pic_" + categoryId);
+        // copy pic to ordinary path
+        LateWork.picturePathReset(prefix_path + "pic_" + categoryId);
 
 //        rootNodeTermCollector();
 
@@ -87,7 +89,7 @@ public class DocLdaActor {
 
     public static void actor() {
 
-        // step.2 get wareId_keyword_brandName_title from mysql online, store as wkbt.txt in PATH C:\Users\zhangshangzhi\Desktop\pic\pic_75061382
+        // step.2 get wareId_keyword_brandName_title from mysql online, store as wkbt.txt in PATH E:\WORK\JD data\pic\pic_75061382
         // help yourself do this.
 
         // step.3 gain index file named wkbtLda.dat as input of LDA model
@@ -205,7 +207,7 @@ public class DocLdaActor {
         mapReindex(map);
         PictureSteward.picturesRename(prefix_path + "pic_" + categoryId, map);
 
-        // TODELETE
+        // print output
         MergeSteward mergeSteward = new MergeSteward(ori_fix_file);
         Map<Integer, Integer> linkIdMap = mergeSteward.rootCellTermCollector(map);
         for (long wareId : map.keySet()) {
