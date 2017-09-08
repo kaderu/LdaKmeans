@@ -70,13 +70,22 @@ public class TranslateActor {
         String title = ware.getTitle();
         if (title != null &&
                 !title.trim().isEmpty()) {
-            String[] titleTerms = title.toLowerCase().split("\\s+");
-            termSet.addAll(Arrays.asList(titleTerms));
+            String[] titleTerms = title.toLowerCase().split("[^0-9a-zA-Z]");
+            // TODO
+            for (String term : titleTerms) {
+                if (!term.isEmpty() &&
+                        !FileSteward.HasDigit(term) &&
+                        term.length() >= 2) {
+                    termSet.add(term);
+                }
+            }
+
         }
     }
 
     public static void keywordSeperator(WareMsgConventor ware, Set<String> termSet) {
         String[] keywords = ware.getKeywords();
+        System.out.println(ware.getWareId());
         String seperateKeyword;
         for (String keyword : keywords) {
             if (keyword.contains(" ")) {
@@ -89,18 +98,18 @@ public class TranslateActor {
             seperateKeyword = "";
             List<String> cutList = null;
             for (String word : termSet) {
+                cutList = new ArrayList<>();
                 if (word.length() <= 2) {
                     continue;
                 }
                 if (!keyword.equals(word)) {
                     if (keyword.indexOf(word) != -1) {
                         String[] eles = keyword.split(word);
-                        cutList = new ArrayList<>();
                         cutList.add(word);
                         boolean isPaste = true;
                         for (String ele : eles) {
                             String trimEle = ele.trim();
-                            if (trimEle.length() == 0) {
+                            if (trimEle.length() <= 0) {
                                 continue;
                             } else if (termSet.contains(trimEle)) {
                                 cutList.add(trimEle);
@@ -115,7 +124,8 @@ public class TranslateActor {
                     }
                 }
             }
-            if (cutList != null) {
+            if (cutList != null
+                    && cutList.size() != 0) {
                 while (!keyword.isEmpty()) {
                     seperateKeyword = seperateKeyword + " ";
                     for (String cutEle : cutList) {
