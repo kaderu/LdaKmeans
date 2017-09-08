@@ -16,12 +16,10 @@ public class PictureSteward {
     public final static String picture_prefix_path = "http://img20.jd.id/Indonesia/s172x172_///img20.jd.id/Indonesia/";
 
     public static void main(String[] args) {
-//        long categoryId = 75061382;
-        long categoryId = 75061316;
-        DocLdaActor.initalPath(categoryId);
+        DocLdaActor.init();
 
         // rename all picture 2 orignal
-        picturesRename(DocLdaActor.prefix_path + "pic_" + categoryId);
+        picturesRename(DocLdaActor.prefix_path + "pic_" + DocLdaActor.categoryId);
 
         List<WareMsgConventor> wareMsgList = FileSteward.getWareMsgList(DocLdaActor.wkbt_file);
         System.out.println("Begin picture download, wareMsgList size is " + wareMsgList.size());
@@ -30,7 +28,7 @@ public class PictureSteward {
         int i = 0;
         for (WareMsgConventor wareMsg : wareMsgList) {
             url = picture_prefix_path + wareMsg.getImgUri();
-            path = DocLdaActor.prefix_path + "pic_" + categoryId + "\\" + wareMsg.getWareId() + ".jpg";
+            path = DocLdaActor.prefix_path + "pic_" + DocLdaActor.categoryId + "\\" + wareMsg.getWareId() + ".jpg";
 
             int time = 0;
             if (!(new File(path).exists())) {

@@ -1,11 +1,15 @@
 package actor;
 
+import tool.PictureSteward;
+
 /**
  * Created by zhangshangzhi on 2017/9/7.
  */
 public class BatchActor {
 
     public static void main(String[] args) {
+
+        PictureSteward.main(new String[0]);
 
         TranslateActor.main(new String[0]);
 
