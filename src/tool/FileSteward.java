@@ -1293,7 +1293,7 @@ public class FileSteward {
         FileWriter fw;
         BufferedWriter bw;
         try {
-            fw = new FileWriter(file, true);
+            fw = new FileWriter(file);
             bw = new BufferedWriter(fw);
             for (String ele : set) {
                 bw.write(ele + "\n");

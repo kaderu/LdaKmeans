@@ -2,8 +2,10 @@ package tool;
 
 import actor.DocLdaActor;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,9 @@ public class PictureSteward {
         String path = "";
         int i = 0;
         for (WareMsgConventor wareMsg : wareMsgList) {
+            if (wareMsg.getImgUri().trim().isEmpty()) {
+                continue;
+            }
             url = picture_prefix_path + wareMsg.getImgUri();
             path = DocLdaActor.prefix_path + "pic_" + DocLdaActor.categoryId + "\\" + wareMsg.getWareId() + ".jpg";
 
@@ -35,6 +40,7 @@ public class PictureSteward {
                 while (!(new File(path).exists()) &&
                         time < 3) {
                     downloadPicture(url, path);
+                    time++;
                 }
                 if (new File(path).exists()) {
                     System.out.println("picture " + i++ + " download to local finished.");
@@ -46,8 +52,7 @@ public class PictureSteward {
     }
     //链接url下载图片
     private static void downloadPicture(String onlineUrl, String localPath) {
-        URL url = null;
-
+        URL url;
         try {
             url = new URL(onlineUrl);
             DataInputStream dataInputStream = new DataInputStream(url.openStream());
@@ -67,9 +72,7 @@ public class PictureSteward {
             fileOutputStream.write(output.toByteArray());
             dataInputStream.close();
             fileOutputStream.close();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
