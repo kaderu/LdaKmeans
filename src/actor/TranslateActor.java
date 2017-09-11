@@ -145,7 +145,7 @@ public class TranslateActor {
         String describe = ware.getDescribe();
         if (describe != null &&
                 !"".equals(describe.trim())) {
-            String[] elements = describe.split("[\\s][\\s][\\s]+");
+            String[] elements = describe.split("\001");
             StringBuffer describeBuffer = new StringBuffer();
             for (int i = 0; i < elements.length; i++) {
                 if (elements[i] == null ||
