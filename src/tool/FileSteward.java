@@ -1102,7 +1102,7 @@ public class FileSteward {
                 }
                 topicIndex = list.get(index);
 
-                String[] eles = str.split("75061316")[0].split("\t");
+                String[] eles = str.split(String.valueOf(DocLdaActor.categoryId))[0].split("\t");
                 long wareId = Long.parseLong(eles[0]);
                 String brandName = eles[2];
                 long leafCateId = Long.parseLong(eles[eles.length - 1]);
@@ -1134,6 +1134,29 @@ public class FileSteward {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static int countTerm(String path) {
+        FileInputStream fis;
+        InputStreamReader isr;
+        BufferedReader br;
+        String str;
+        int cnt = 0;
+        try {
+            str = "";
+            fis = new FileInputStream(path);
+            isr = new InputStreamReader(fis);
+            br = new BufferedReader(isr);
+            while ((str = br.readLine()) != null) {
+                if ("".equals(str.trim())) {
+                    continue;
+                }
+                cnt++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cnt;
     }
 
     public static Set<String> readStopSet() {

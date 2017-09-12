@@ -406,8 +406,9 @@ public class MergeSteward {
     }
 
     public void mergeNode() {
+        int termCnt = FileSteward.countTerm(DocLdaActor.wkbt_dict_file);
         List<CellCluster> list = getCellClusterList();
-        double[][] result = new double[list.size()][5725 + 2]; // [0] is index start from 1, [1] is cell_size
+        double[][] result = new double[list.size()][termCnt + 2]; // [0] is index start from 1, [1] is cell_size
 
         Map<Integer, Integer> indexMap = null;
         for (int i = 0; i < list.size(); i++) {
