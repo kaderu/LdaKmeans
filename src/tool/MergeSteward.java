@@ -321,6 +321,12 @@ public class MergeSteward {
             collectMap.put(cellId, curIndexMap);
         }
         List<Map.Entry<Integer, Map<Integer, Integer>>> entrys = new ArrayList<>(collectMap.entrySet());
+        Collections.sort(entrys, new Comparator<Map.Entry<Integer, Map<Integer, Integer>>>() {
+            @Override
+            public int compare(Map.Entry<Integer, Map<Integer, Integer>> o1, Map.Entry<Integer, Map<Integer, Integer>> o2) {
+                return o1.getKey() - o2.getKey();
+            }
+        });
         for (int i = 0; i < entrys.size(); i++) {
             for (int j = 0; j < i; j++) {
                 double score = scoreMaid(entrys.get(i).getValue(), entrys.get(j).getValue());
