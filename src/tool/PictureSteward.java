@@ -29,7 +29,8 @@ public class PictureSteward {
         String path = "";
         int i = 0;
         for (WareMsgConventor wareMsg : wareMsgList) {
-            if (wareMsg.getImgUri().trim().isEmpty()) {
+            if (wareMsg.getImgUri() != null &&
+                    wareMsg.getImgUri().trim().isEmpty()) {
                 continue;
             }
             url = picture_prefix_path + wareMsg.getImgUri();

@@ -10,10 +10,14 @@ public class BatchActor {
     public static void main(String[] args) {
 
         PictureSteward.main(new String[0]);
+//
+        DocLdaActor.watchActor();
 
         TranslateActor.main(new String[0]);
 
         KTDActor.main(new String[0]);
+
+        KmeansActor.main(new String[0]);
 
         DocLdaActor.main(new String[0]);
     }
