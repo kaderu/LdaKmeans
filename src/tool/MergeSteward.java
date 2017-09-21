@@ -3,6 +3,7 @@ package tool;
 import actor.DocLdaActor;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
 
@@ -297,7 +298,7 @@ public class MergeSteward {
     }
 
     public Map<Integer, Integer> rootCellTermCollector(Map<Long, Number> map) {
-        Map<Integer, List<Long>> wareIdListMap = new HashMap<>();
+        Map<Integer, List<Long>> wareIdListMap = new TreeMap<>();
         for (long wareId : map.keySet()) {
             if (!wareIdListMap.containsKey(map.get(wareId))) {
                 wareIdListMap.put((int) map.get(wareId), new ArrayList<Long>());
@@ -306,14 +307,39 @@ public class MergeSteward {
         }
 
         // sout
-//        /*
+        List<String> writeList = new ArrayList<>();
         for (int cellId : wareIdListMap.keySet()) {
+            FileSteward.writeCellNum(cellId);
             Map<String, Double> curIndexCellNameMap = indexMapMaidWithName(wareIdListMap.get(cellId));
-            System.out.print(cellId + "\t");
-            System.out.println(curIndexCellNameMap.keySet());
-        }
-//        */
+            Set<String> popularTermSet = curIndexCellNameMap.keySet();
 
+            // 2017.9.19
+            // here we only want noun terms, check by standford jar and model
+            popularTermSet = lateWork.getNunTermList(popularTermSet);
+
+            writeList.add(cellId + "\t" + popularTermSet);
+            System.out.println(cellId + "\t" + popularTermSet);
+        }
+
+        // write message.txt
+        String file = DocLdaActor.prefix_path + "pic_" + DocLdaActor.categoryId + "\\" + "message.txt";
+        FileWriter fw;
+        BufferedWriter bw;
+        try {
+            fw = new FileWriter(new File(file));
+            bw = new BufferedWriter(fw);
+            for (String content : writeList) {
+                bw.write(content + "\r\n");
+            }
+            bw.close();
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // need not logic behind
+        return new HashMap<>();
+
+        /*
         Map<Integer, Map<Integer, Integer>> collectMap = new HashMap<>();
         Map<Integer, List<Integer>> cellIdMergeMap = new TreeMap<>();
         for (int cellId : wareIdListMap.keySet()) {
@@ -361,6 +387,7 @@ public class MergeSteward {
         }
 
         return idLinkMap;
+        */
     }
 
     public void mergeNodeEx() {

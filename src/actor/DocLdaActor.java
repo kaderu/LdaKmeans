@@ -210,9 +210,9 @@ public class DocLdaActor {
         // print output
         MergeSteward mergeSteward = new MergeSteward(ori_fix_file);
         Map<Integer, Integer> linkIdMap = mergeSteward.rootCellTermCollector(map);
-        for (long wareId : map.keySet()) {
-            map.put(wareId, linkIdMap.get(map.get(wareId)));
-        }
+//        for (long wareId : map.keySet()) {
+//            map.put(wareId, linkIdMap.get(map.get(wareId)));
+//        }
 
     }
 

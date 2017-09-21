@@ -1024,6 +1024,7 @@ public class FileSteward {
                 if(inC.position() == inC.size()){
                     inC.close();
                     outC.close();
+                    break;
                 }
                 if((inC.size() - inC.position()) < length){
                     length = (int)(inC.size() - inC.position());
@@ -1501,6 +1502,132 @@ public class FileSteward {
             e.printStackTrace();
         }
         return gammaList;
+    }
+
+    // write fitDegree.txt, we use this method as delimiter
+    public static void writeCellNum(int cellNum) {
+        String file = DocLdaActor.prefix_path + "pic_" + DocLdaActor.categoryId + "\\" + "fitDegree.txt";
+        FileWriter fw;
+        BufferedWriter bw;
+        try {
+            fw = new FileWriter(file, true);
+            bw = new BufferedWriter(fw);
+            bw.write("cell " + cellNum + " start ###\n");
+            bw.close();
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<LateWorkWareMsgModel> getLateWorkWareMsgModleFromFitDegree(String file) {
+        List<LateWorkWareMsgModel> list = new ArrayList<>();
+        FileInputStream fis;
+        InputStreamReader isr;
+        BufferedReader br;
+        String str = "";
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis);
+            br = new BufferedReader(isr);
+            while ((str = br.readLine()) != null) {
+                if ("".equals(str.trim()) ||
+                        str.contains("###")) {
+                    continue;
+                }
+                String[] arrays = str.split("\t");
+                LateWorkWareMsgModel model = new LateWorkWareMsgModel();
+                model.setWareId(Long.parseLong(arrays[0]));
+                if (arrays.length >= 3) {
+                    model.setNunTerms(arrays[2]);
+                } else {
+                    model.setNunTerms("");
+                }
+                list.add(model);
+            }
+            br.close();
+            isr.close();
+            fis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public static void storeNunTermSummaryFromFitDegree(String readFile, String storeFile) {
+        FileInputStream fis;
+        InputStreamReader isr;
+        BufferedReader br;
+        FileWriter fw;
+        BufferedWriter bw;
+        String str = "";
+        int index = 0;
+        Map<String, Integer> collectMap = null;
+        int cellSize = 0;
+        try {
+            fis = new FileInputStream(readFile);
+            isr = new InputStreamReader(fis);
+            br = new BufferedReader(isr);
+            fw = new FileWriter(storeFile);
+            bw = new BufferedWriter(fw);
+            while ((str = br.readLine()) != null) {
+                if ("".equals(str.trim())) {
+                    continue;
+                }
+                if (str.contains("###")) {
+                    if (collectMap != null) {
+                        bw.write(index + "\t" + getSummaryMsg(collectMap, cellSize) + "\n");
+                    }
+                    index = Integer.parseInt(str.trim().split(" ")[1]);
+                    collectMap = new HashMap<>();
+                    cellSize = 0;
+                    continue;
+                }
+                cellSize++;
+                String[] arrays = str.split("\t");
+                if (arrays.length >= 3) {
+                    String[] terms = arrays[2].split(",");
+                    for (String term : terms) {
+                        if (!collectMap.containsKey(term)) {
+                            collectMap.put(term, 1);
+                        } else {
+                            collectMap.put(term, collectMap.get(term) + 1);
+                        }
+                    }
+                }
+            }
+            if (collectMap != null) {
+                bw.write(index + "\t" + getSummaryMsg(collectMap, cellSize) + "\n");
+            }
+            bw.close();
+            fw.close();
+            br.close();
+            isr.close();
+            fis.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getSummaryMsg(Map<String, Integer> map, int size) {
+        if (map == null ||
+                map.size() == 0) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
+        List<Map.Entry<String, Integer>> infos = new ArrayList<>(map.entrySet());
+        Collections.sort(infos, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue() - o1.getValue();
+            }
+        });
+
+        for (Map.Entry<String, Integer> ele : infos) {
+            sb.append(ele.getKey()).append(":").append(ele.getValue() / (double) size);
+            sb.append("\t");
+        }
+        return sb.toString();
     }
 
     public static void main(String[] args) {
