@@ -420,6 +420,38 @@ public class FileSteward {
         return true;
     }
 
+    public static List<WareMsg> getWareMsgFromNormalize(String path) {
+        List<WareMsg> list = new ArrayList<>();
+        FileInputStream fis;
+        InputStreamReader isr;
+        BufferedReader br;
+        try {
+            String str = "";
+            String[] eles;
+            WareMsg wareMsg;
+            fis = new FileInputStream(path);
+            isr = new InputStreamReader(fis);
+            br = new BufferedReader(isr);
+            while ((str = br.readLine()) != null) {
+                if ("".equals(str.trim())) {
+                    continue;
+                }
+                wareMsg = new WareMsg();
+                eles = str.split("\t");
+                wareMsg.setWareId(Long.parseLong(eles[0]));
+                wareMsg.setKeywords(eles[1]);
+                if (eles.length >= 3) {
+                    wareMsg.setTitle(eles[2]);
+                }
+                list.add(wareMsg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
     public static List<Ware4LateWork> getWare4LateWorkList(String path) {
         List<Ware4LateWork> wareList = new ArrayList<>();
 

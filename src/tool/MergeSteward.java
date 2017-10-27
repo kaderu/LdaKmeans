@@ -263,6 +263,21 @@ public class MergeSteward {
                 }
             }
         }
+//        */
+
+//        for (Map.Entry<Integer, List<Integer>> entry : map.entrySet()) {
+//            Set<Integer> curSet = new TreeSet<>();
+//            curSet.add(entry.getKey());
+//            curSet.addAll(entry.getValue());
+//            setList.add(curSet);
+//            for (int curId : curSet) {
+//                if (!idMap.containsKey(curId)) {
+//                    idMap.put(curId, 1);
+//                } else {
+//                    idMap.put(curId, idMap.get(curId) + 1);
+//                }
+//            }
+//        }
 
         Set<Set<Integer>> finalSet = new HashSet<>();
         for (int cellId : idMap.keySet()) {
